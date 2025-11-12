@@ -5,19 +5,19 @@ from datetime import datetime
 GEMINI_DIR = os.path.expanduser("~/.gemini")
 TMP_DIR = os.path.join(GEMINI_DIR, "tmp")
 
-def find_sessions():
-    """Finds all automatically saved sessions."""
+def find_sessions(current_project_hash):
+    """Finds all automatically saved sessions for the current project."""
     sessions = []
-    if not os.path.exists(TMP_DIR):
+    
+    project_tmp_dir = os.path.join(TMP_DIR, current_project_hash)
+    chats_dir = os.path.join(project_tmp_dir, "chats")
+
+    if not os.path.exists(chats_dir):
         return sessions
 
-    for session_id in os.listdir(TMP_DIR):
-        session_dir = os.path.join(TMP_DIR, session_id)
-        chats_dir = os.path.join(session_dir, "chats")
-        if os.path.isdir(chats_dir):
-            for session_file in os.listdir(chats_dir):
-                if session_file.startswith("session-") and session_file.endswith(".json"):
-                    sessions.append(os.path.join(chats_dir, session_file))
+    for session_file in os.listdir(chats_dir):
+        if session_file.startswith("session-") and session_file.endswith(".json"):
+            sessions.append(os.path.join(chats_dir, session_file))
     return sessions
 
 import hashlib
@@ -90,9 +90,10 @@ def save_session(session_path, name):
 
 def main():
     """Main function."""
-    sessions = find_sessions()
+    current_project_hash = get_project_hash(get_project_root())
+    sessions = find_sessions(current_project_hash)
     if not sessions:
-        print("No sessions found.")
+        print("No sessions found for the current directory.")
         return
 
     print("Found the following sessions:")
@@ -101,8 +102,11 @@ def main():
             with open(session_path, "r") as f:
                 data = json.load(f)
             start_time = datetime.fromisoformat(data["startTime"].replace("Z", "+00:00"))
-            last_prompt = data["messages"][-1]["content"] if data["messages"] else "No messages"
-            print(f"{i+1}: {start_time.strftime('%Y-%m-%d %H:%M:%S')} - Last prompt: {last_prompt[:50]}...")
+            
+            first_message = data["messages"][0]["content"] if data["messages"] else "No messages"
+            last_message = data["messages"][-1]["content"] if data["messages"] else "No messages"
+            
+            print(f"{i+1}: {start_time.strftime('%Y-%m-%d %H:%M:%S')} - First: {first_message[:100]}... - Last: {last_message[:100]}...")
         except (IOError, json.JSONDecodeError, KeyError) as e:
             print(f"Error reading session file {session_path}: {e}")
 
