@@ -1,0 +1,61 @@
+{
+  "sessionId": "sample-session-id-123",
+  "projectHash": "sample-project-hash-abc",
+  "startTime": "2025-11-12T07:00:00.000Z",
+  "lastUpdated": "2025-11-12T07:05:00.000Z",
+  "messages": [
+    {
+      "id": "msg-1",
+      "timestamp": "2025-11-12T07:00:00.000Z",
+      "type": "user",
+      "content": "Hello, Gemini! What's the weather like today?"
+    },
+    {
+      "id": "msg-2",
+      "timestamp": "2025-11-12T07:01:00.000Z",
+      "type": "gemini",
+      "content": "I need to use a tool to get the weather. What's your location?",
+      "toolCalls": [
+        {
+          "id": "tool-call-1",
+          "name": "get_weather",
+          "args": {
+            "location": "New York"
+          }
+        }
+      ]
+    },
+    {
+      "id": "msg-3",
+      "timestamp": "2025-11-12T07:02:00.000Z",
+      "type": "user",
+      "content": "My location is New York."
+    },
+    {
+      "id": "msg-4",
+      "timestamp": "2025-11-12T07:03:00.000Z",
+      "type": "gemini",
+      "content": "The weather in New York is sunny with a temperature of 25°C.",
+      "toolCalls": [
+        {
+          "id": "tool-call-1",
+          "name": "get_weather",
+          "args": {
+            "location": "New York"
+          },
+          "result": [
+            {
+              "functionResponse": {
+                "id": "tool-call-1",
+                "name": "get_weather",
+                "response": {
+                  "output": "{\"temperature\": 25, \"conditions\": \"sunny\"}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

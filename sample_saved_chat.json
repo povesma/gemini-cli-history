@@ -1,0 +1,51 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Hello, Gemini! What's the weather like today?"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I need to use a tool to get the weather. What's your location?"
+      },
+      {
+        "functionCall": {
+          "name": "get_weather",
+          "args": {
+            "location": "New York"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "My location is New York."
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "The weather in New York is sunny with a temperature of 25°C."
+      },
+      {
+        "functionResponse": {
+          "id": "tool-call-1",
+          "name": "get_weather",
+          "response": {
+            "output": "{\"temperature\": 25, \"conditions\": \"sunny\"}"
+          }
+        }
+      }
+    ]
+  }
+]

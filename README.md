@@ -27,42 +27,125 @@ The core challenge addressed by this tool is the structural difference between a
 
 *   **Automatic Session File Structure**: These files are JSON objects containing metadata (`sessionId`, `projectHash`, `startTime`, `lastUpdated`) and a `messages` array. Each message object within this array contains fields such as `id`, `timestamp`, `type` (e.g., "user", "gemini"), `content` (raw text), `thoughts`, `tokens`, `model`, and `toolCalls`.
 
+    **Example (`sample_live_session.json`):**
     ```json
     {
-      "sessionId": "...",
-      "projectHash": "...",
-      "startTime": "...",
+      "sessionId": "sample-session-id-123",
+      "projectHash": "sample-project-hash-abc",
+      "startTime": "2025-11-12T07:00:00.000Z",
+      "lastUpdated": "2025-11-12T07:05:00.000Z",
       "messages": [
         {
-          "id": "...",
+          "id": "msg-1",
+          "timestamp": "2025-11-12T07:00:00.000Z",
           "type": "user",
-          "content": "...",
-          "toolCalls": [...]
+          "content": "Hello, Gemini! What's the weather like today?"
         },
-        // ...
+        {
+          "id": "msg-2",
+          "timestamp": "2025-11-12T07:01:00.000Z",
+          "type": "gemini",
+          "content": "I need to use a tool to get the weather. What's your location?",
+          "toolCalls": [
+            {
+              "id": "tool-call-1",
+              "name": "get_weather",
+              "args": {
+                "location": "New York"
+              }
+            }
+          ]
+        },
+        {
+          "id": "msg-3",
+          "timestamp": "2025-11-12T07:02:00.000Z",
+          "type": "user",
+          "content": "My location is New York."
+        },
+        {
+          "id": "msg-4",
+          "timestamp": "2025-11-12T07:03:00.000Z",
+          "type": "gemini",
+          "content": "The weather in New York is sunny with a temperature of 25°C.",
+          "toolCalls": [
+            {
+              "id": "tool-call-1",
+              "name": "get_weather",
+              "args": {
+                "location": "New York"
+              },
+              "result": [
+                {
+                  "functionResponse": {
+                    "id": "tool-call-1",
+                    "name": "get_weather",
+                    "response": {
+                      "output": "{\"temperature\": 25, \"conditions\": \"sunny\"}"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
       ]
     }
     ```
 
 *   **Manual Checkpoint File Structure**: These files are JSON arrays where each element is a message object. Each message object is expected to have a `role` (e.g., "user", "model") and a `parts` array. The `parts` array can contain objects with a `text` key for conversational content, or `functionCall` and `functionResponse` keys for tool interactions.
 
+    **Example (`sample_saved_chat.json`):**
     ```json
     [
       {
         "role": "user",
         "parts": [
-          { "text": "..." }
+          {
+            "text": "Hello, Gemini! What's the weather like today?"
+          }
         ]
       },
       {
         "role": "model",
         "parts": [
-          { "text": "..." },
-          { "functionCall": { "name": "...", "args": {...} } },
-          { "functionResponse": { "id": "...", "name": "...", "response": {...} } }
+          {
+            "text": "I need to use a tool to get the weather. What's your location?"
+          },
+          {
+            "functionCall": {
+              "name": "get_weather",
+              "args": {
+                "location": "New York"
+              }
+            }
+          }
         ]
       },
-      // ...
+      {
+        "role": "user",
+        "parts": [
+          {
+            "text": "My location is New York."
+          }
+        ]
+      },
+      {
+        "role": "model",
+        "parts": [
+          {
+            "text": "The weather in New York is sunny with a temperature of 25°C."
+          },
+          {
+            "functionResponse": {
+              "id": "tool-call-1",
+              "name": "get_weather",
+              "response": {
+                "output": "{\"temperature\": 25, \"conditions\": \"sunny\"}"
+              }
+            }
+          ]
+        }
+      }
     ]
     ```
 
